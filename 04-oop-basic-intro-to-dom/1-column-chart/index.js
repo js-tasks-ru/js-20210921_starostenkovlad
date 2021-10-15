@@ -4,25 +4,23 @@ export default class ColumnChart {
     chartHeight = 50;
 
     constructor({
-        data = [],
-        label = '',
-        link = '',
-        value = 0,
-        formatHeading = data => data
+      data = [],
+      label = '',
+      link = '',
+      value = 0,
+      formatHeading = data => data
     } = {}) {
 
-        console.log(data);
+      this.data = data;
+      this.label = label;
+      this.link = link;
+      this.value = formatHeading(value);
 
-        this.data = data;
-        this.label = label;
-        this.link = link;
-        this.value = formatHeading(value);
-
-        this.render();
+      this.render();
     }
 
     get template() {
-        return `
+      return `
            <div class="column-chart column-chart_loading" style="--chart-height: ${this.chartHeight}">
              <div class="column-chart__title">
                Total ${this.label}
@@ -41,62 +39,60 @@ export default class ColumnChart {
     }
 
     render() {
-        const element = document.createElement('div');
+      const element = document.createElement('div');
 
-        console.log(this.template);
+      element.innerHTML = this.template;
 
-        element.innerHTML = this.template;
+      this.element = element.firstElementChild;
 
-        this.element = element.firstElementChild;
+      if (this.data.length) {
+        this.element.classList.remove('column-chart_loading');
+      }
 
-        if (this.data.length) {
-            this.element.classList.remove('column-chart_loading');
-        }
-
-        this.subElements = this.getSubElements(this.element);
+      this.subElements = this.getSubElements(this.element);
     }
 
     getSubElements(element) {
-        const result = {};
+      const result = {};
 
-        const elements = element.querySelectorAll('[data-element]');
+      const elements = element.querySelectorAll('[data-element]');
 
-        for (const subElement of elements) {
-            const name = subElement.dataset.element;
+      for (const subElement of elements) {
+        const name = subElement.dataset.element;
 
-            result[name] = subElement;
-        }
-        return result;
+        result[name] = subElement;
+      }
+      return result;
     }
 
     getColumnBody(data) {
-        const maxValue = Math.max(...data);
-        const scale = this.chartHeight / maxValue;
+      const maxValue = Math.max(...data);
+      const scale = this.chartHeight / maxValue;
 
-        return data.map(item => {
-            const percent = (item / maxValue * 100).toFixed(0);
+      return data.map(item => {
+        const percent = (item / maxValue * 100).toFixed(0);
 
-            return `<div style="--value: ${Math.floor(item * scale)}" data-tooltip="${percent}%"></div>`;
-        }).join('');
+        return `<div style="--value: ${Math.floor(item * scale)}" data-tooltip="${percent}%"></div>`;
+      }).join('');
     }
 
     getLink() {
-        return this.link ? `<a class="column-chart__link" href="${this.link}">View all</a>` : '';
+      return this.link ? `<a class="column-chart__link" href="${this.link}">View all</a>` : '';
     }
 
     update(data) {
-        this.subElements.body.innerHTML = this.getColumnBody(data);
+      this.subElements.body.innerHTML = this.getColumnBody(data);
     }
 
     remove() {
-        if (this.element) {
-            this.element.remove();
-        }
+      if (this.element) {
+        this.element.remove();
+      }
     }
 
     destroy() {
-        this.remove();
-        this.element = null;
-        this.subElements = {};
+      this.remove();
+      this.element = null;
+      this.subElements = {};
     }
 }
